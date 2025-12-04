@@ -1,8 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-# ---------------------------------------------------------
-# Server Setup
-# ---------------------------------------------------------
+
 $port = if ($env:PORT) { try { [int]$env:PORT } catch { 8080 } } else { 8080 }
 
 $listener = [System.Net.HttpListener]::new()
@@ -10,9 +8,7 @@ $listener.Prefixes.Add("http://localhost:$port/")
 $listener.Start()
 Write-Host "REST server running at http://localhost:$port/"
 
-# ---------------------------------------------------------
-# Helper Functions
-# ---------------------------------------------------------
+
 
 function SendFile($response, $statusCode, $filePath, $contentType) {
     if (-not (Test-Path $filePath)) {

@@ -1,209 +1,396 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Movie Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>Movie Manager - Netflix Cinematic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+/* -------------------------------
+   NETFLIX CINEMATIC THEME
+--------------------------------*/
+:root {
+  --bg-gradient: linear-gradient(135deg,#141414 0%,#1b0000 100%);
+  --bg: #141414;
+  --text: #e5e5e5;
+  --muted: #888;
+  --primary: #e50914;
+  --primary-hover: #ff1a1f;
+  --card: #1c1c1c;
+  --border: #333;
+  --danger: #e50914;
+}
 
-  <style>
-    :root {
-      --bg:#0f172a;
-      --text:#e2e8f0;
-      --muted:#94a3b8;
-      --primary:#14b8a6;
-      --primary-700:#0f766e;
-      --card:#111827;
-      --border:#1f2937;
-      --danger:#ef4444;
-    }
+body.light {
+  --bg: #f8fafc;
+  --text: #0f172a;
+  --muted: #475569;
+  --primary: #0ea5e9;
+  --primary-hover: #0369a1;
+  --card: #ffffff;
+  --border: #cbd5e1;
+  --danger: #dc2626;
+}
 
-    /* LIGHT THEME */
-    body.light {
-      --bg: #f8fafc;
-      --text: #0f172a;
-      --muted: #475569;
-      --primary: #0ea5e9;
-      --primary-700: #0369a1;
-      --card: #ffffff;
-      --border: #cbd5e1;
-      --danger: #dc2626;
+body {
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text);
+  transition: all 0.4s ease;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
 
-      background:#f1f5f9;
-      color:var(--text);
-    }
+/* -------------------------------
+   PARTICLES BACKGROUND
+--------------------------------*/
+.particle {
+  position:absolute;
+  border-radius:50%;
+  background: rgba(255,0,0,0.15);
+  animation: float 10s linear infinite;
+  pointer-events:none;
+}
 
-    body.light input {
-      background:#ffffff;
-      color:#0f172a;
-    }
+@keyframes float {
+  0% { transform: translateY(110vh) translateX(0) scale(0.5); opacity:0; }
+  50% { opacity:0.7; }
+  100% { transform: translateY(-10vh) translateX(100px) scale(1); opacity:0; }
+}
 
-    body.light .movie-item,
-    body.light .card {
-      background:#ffffff;
-      box-shadow:0 4px 8px rgba(0,0,0,.08);
-    }
+/* -------------------------------
+   HEADER (Neon Glow Text)
+--------------------------------*/
+.container {
+  max-width: 880px;
+  margin:0 auto;
+  padding:32px 20px;
+  position:relative;
+  z-index:1;
+}
 
-    body {
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,sans-serif;
-      background:linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
-      color:var(--text);
-      transition:all 0.25s ease;
-    }
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:24px;
+}
 
-    .container { max-width:880px; margin:0 auto; padding:32px 20px; }
-    .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
-    h1 { margin:0; font-size:28px; }
-    .pill { padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--muted); }
+.header h1 {
+  font-size:2.5em;
+  color: var(--primary);
+  text-shadow:
+    0 0 5px var(--primary),
+    0 0 10px var(--primary),
+    0 0 20px var(--primary-hover),
+    0 0 30px var(--primary-hover);
+  animation: neon-glow 1.5s ease-in-out infinite alternate;
+}
 
-    .btn { padding:6px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
-    .btn-primary { background:var(--primary); color:#062e2a; }
-    .btn-danger { background:var(--danger); color:white; }
+@keyframes neon-glow {
+  0% { text-shadow:0 0 5px var(--primary),0 0 10px var(--primary),0 0 20px var(--primary-hover),0 0 30px var(--primary-hover);}
+  50% { text-shadow:0 0 10px var(--primary),0 0 20px var(--primary),0 0 30px var(--primary-hover),0 0 40px var(--primary-hover);}
+  100% { text-shadow:0 0 5px var(--primary),0 0 10px var(--primary),0 0 20px var(--primary-hover),0 0 30px var(--primary-hover);}
+}
 
-    .card { background:var(--card); border:1px solid var(--border); padding:16px; border-radius:12px; }
+.pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+}
 
-    input {
-      width:100%; padding:12px; border-radius:10px; background:#0b1220; border:1px solid var(--border);
-      color:var(--text);
-      margin-bottom:8px;
-    }
+/* -------------------------------
+   BUTTONS (Red Neon + Bouncy)
+--------------------------------*/
+.btn {
+  padding: 10px 14px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  transition: all 0.25s ease, box-shadow 0.25s ease;
+}
 
-    #movie-list { display:grid; gap:12px; }
-    .movie-item { display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
-    .movie-item img { width:60px; height:90px; object-fit:cover; border-radius:6px; border:1px solid var(--border); }
-    .movie-item-info { display:flex; gap:12px; align-items:center; }
-    .movie-item-info p { margin:0; }
-  </style>
+.btn-primary {
+  background: var(--primary);
+  color:#fff;
+  box-shadow:0 0 10px var(--primary);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 25px var(--primary-hover),0 0 35px var(--primary);
+}
+
+.btn-primary:active {
+  animation: bounce 0.3s;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color:white;
+  box-shadow:0 0 12px var(--danger);
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.85); }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* -------------------------------
+   INPUTS
+--------------------------------*/
+input {
+  width:100%;
+  padding:12px;
+  background:#1c1c1c;
+  border-radius:8px;
+  color:var(--text);
+  border:1px solid var(--border);
+  margin-bottom:8px;
+  transition:all 0.3s ease;
+}
+
+input:focus {
+  outline:none;
+  box-shadow:0 0 10px var(--primary);
+  border-color: var(--primary);
+}
+
+/* -------------------------------
+   CARD (Floating + Glow + Click Bounce)
+--------------------------------*/
+.card {
+  background: var(--card);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:16px;
+  border:1px solid var(--border);
+  box-shadow:0 0 20px rgba(255,0,0,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow:0 0 35px rgba(255,0,0,0.4);
+}
+
+.card:active {
+  animation: bounce 0.3s;
+}
+
+/* -------------------------------
+   MOVIE ITEMS (Floating Cards + Tilt + Neon Poster)
+--------------------------------*/
+#movie-list {
+  display:grid;
+  gap:15px;
+}
+
+.movie-item {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background: var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.movie-item:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 0 25px var(--primary-hover);
+}
+
+.movie-item:active {
+  animation: bounce 0.3s;
+}
+
+.movie-item-info {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  position:relative;
+}
+
+.movie-item img {
+  width:70px;
+  height:100px;
+  border-radius:8px;
+  object-fit:cover;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  transform-style: preserve-3d;
+  box-shadow:0 0 15px rgba(255,0,0,0.4);
+}
+
+.movie-item img:hover {
+  transform: rotateY(15deg) rotateX(8deg) scale(1.1);
+  box-shadow:0 0 30px var(--primary-hover);
+}
+
+/* -------------------------------
+   SHIMMER LOADER
+--------------------------------*/
+.shimmer {
+  height:100px;
+  border-radius:10px;
+  background: linear-gradient(90deg,#1c1c1c 0%,#333 50%,#1c1c1c 100%);
+  background-size:200% 100%;
+  animation: shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position:200% 0; }
+  100% { background-position:-200% 0; }
+}
+
+#form-error {
+  color: var(--danger);
+  margin-bottom:8px;
+}
+</style>
 </head>
 <body>
-  <main class="container">
-    <div class="header">
-      <h1>Movie Collection Manager</h1>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <span class="pill">Teal Theme</span>
-        <button id="light-toggle" class="btn btn-primary">Light</button>
-      </div>
+
+<!-- Floating Particles Container -->
+<div id="particles-container"></div>
+
+<main class="container">
+  <div class="header">
+    <h1>Movie Manager</h1>
+    <div style="display:flex; gap:10px;">
+      <span class="pill">Netflix Style</span>
+      <button id="theme-toggle" class="btn btn-primary">Light</button>
     </div>
+  </div>
 
-    <section class="card" style="margin-bottom:16px;">
-      <form id="add-movie-form">
-        <h3>Add New Movie</h3>
-        <input type="text" id="title" placeholder="Title" required>
-        <input type="text" id="genre" placeholder="Genre">
-        <input type="text" id="poster" placeholder="Poster URL">
-        <input type="number" id="year" placeholder="Release Year" required>
-        <div id="form-error" class="pill" style="display:none; color:#ef4444; border-color:#ef4444; background:transparent;"></div>
-        <button type="submit" class="btn btn-primary">Add Movie</button>
-      </form>
-    </section>
+  <section class="card">
+    <form id="add-movie-form">
+      <h3>Add New Movie</h3>
+      <input type="text" id="title" placeholder="Title" required>
+      <input type="text" id="genre" placeholder="Genre">
+      <input type="text" id="poster" placeholder="Poster URL">
+      <input type="number" id="year" placeholder="Year" required>
+      <div id="form-error"></div>
+      <button type="submit" class="btn btn-primary">Add Movie</button>
+    </form>
+  </section>
 
-    <section class="card">
-      <h2>Movie List</h2>
-      <input type="text" id="search-input" placeholder="Search movies by title or genre">
-      <div id="movie-list"></div>
-    </section>
-  </main>
+  <section class="card">
+    <h2>Movie List</h2>
+    <input type="text" id="search-input" placeholder="Search movies...">
+    <div id="movie-list"></div>
+  </section>
+</main>
 
-  <script>
-    const movieListDiv = document.getElementById('movie-list');
-    const searchInput = document.getElementById('search-input');
-    const form = document.getElementById('add-movie-form');
-    const formError = document.getElementById('form-error');
-    const toggleBtn = document.getElementById("light-toggle");
+<script>
+/* -------------------------------
+   Floating Particles
+--------------------------------*/
+const particleContainer = document.getElementById("particles-container");
+for(let i=0;i<30;i++){
+  const p = document.createElement('div');
+  p.className='particle';
+  p.style.width = p.style.height = (Math.random()*12+6)+'px';
+  p.style.left = Math.random()*100+'vw';
+  p.style.top = Math.random()*100+'vh';
+  p.style.animationDuration = (Math.random()*10+5)+'s';
+  particleContainer.appendChild(p);
+}
 
-    let allMovies = [];
+/* -------------------------------
+   Movies & UI
+--------------------------------*/
+const movieList = document.getElementById("movie-list");
+const form = document.getElementById("add-movie-form");
+const searchInput = document.getElementById("search-input");
+const themeToggle = document.getElementById("theme-toggle");
 
-    function renderMovies(moviesToDisplay) {
-      movieListDiv.innerHTML = '';
-      if (moviesToDisplay.length === 0) {
-        movieListDiv.innerHTML = '<p>No movies found.</p>';
-        return;
-      }
+let movies=[];
 
-      moviesToDisplay.forEach(movie => {
-        const movieElement = document.createElement('div');
-        movieElement.classList.add('movie-item');
-        movieElement.innerHTML = `
-          <div class="movie-item-info">
-            <img src="${movie.poster || 'https://via.placeholder.com/60x90?text=No+Image'}" alt="${movie.title}">
-            <div>
-              <p><strong>${movie.title}</strong> (${movie.year})</p>
-              <p style="font-size:0.9em; color:var(--muted);">${movie.genre}</p>
-            </div>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <button class="btn btn-primary" onclick="editMoviePrompt(${movie.id})">Edit</button>
-            <button class="btn btn-danger" onclick="deleteMovie(${movie.id})">Delete</button>
-          </div>
-        `;
-        movieListDiv.appendChild(movieElement);
-      });
-    }
+function showLoader(){
+  movieList.innerHTML = '<div class="shimmer"></div><div class="shimmer"></div><div class="shimmer"></div>';
+}
 
-    form.addEventListener('submit', function(event) {
-      event.preventDefault();
-      const titleVal = document.getElementById('title').value.trim();
-      const genreVal = document.getElementById('genre').value.trim();
-      const posterVal = document.getElementById('poster').value.trim();
-      const yearVal = parseInt(document.getElementById('year').value);
-
-      if (!titleVal || Number.isNaN(yearVal)) {
-        formError.style.display = 'block';
-        formError.textContent = 'Please provide title and a valid year.';
-        return;
-      }
-
-      const newMovie = {
-        id: Date.now(),
-        title: titleVal,
-        genre: genreVal || "Unknown",
-        year: yearVal,
-        poster: posterVal
-      };
-
-      allMovies.push(newMovie);
-      renderMovies(allMovies);
-      form.reset();
-      formError.style.display = 'none';
+function fetchMovies(){
+  showLoader();
+  setTimeout(()=>{
+    fetch("movies.json")
+    .then(res=>res.json())
+    .then(data=>{
+      movies=data.movies;
+      renderMovies(movies);
     });
+  },900);
+}
+fetchMovies();
 
-    searchInput.addEventListener('input', () => {
-      const searchTerm = searchInput.value.toLowerCase();
-      const filteredMovies = allMovies.filter(movie =>
-        movie.title.toLowerCase().includes(searchTerm) ||
-        movie.genre.toLowerCase().includes(searchTerm)
-      );
-      renderMovies(filteredMovies);
-    });
+function renderMovies(list){
+  movieList.innerHTML="";
+  if(list.length===0){ movieList.innerHTML="<p>No movies found</p>"; return;}
+  list.forEach(m=>{
+    const item=document.createElement("div");
+    item.className="movie-item";
+    item.innerHTML=`
+      <div class="movie-item-info">
+        <img src="${m.poster||'https://via.placeholder.com/80x100'}">
+        <div>
+          <p><strong>${m.title}</strong> (${m.year})</p>
+          <p style="color:var(--muted)">${m.genre}</p>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="editMovie(${m.id})">Edit</button>
+        <button class="btn btn-danger" onclick="deleteMovie(${m.id})">Delete</button>
+      </div>
+    `;
+    item.addEventListener('mousedown', ()=> item.style.animation='bounce 0.3s');
+    item.addEventListener('animationend', ()=> item.style.animation='');
+    movieList.appendChild(item);
+  });
+}
 
-    function editMoviePrompt(id) {
-      const movie = allMovies.find(m => m.id === id);
-      if (!movie) return;
+searchInput.addEventListener("input", ()=>{
+  const term=searchInput.value.toLowerCase();
+  renderMovies(movies.filter(m=>m.title.toLowerCase().includes(term)||m.genre.toLowerCase().includes(term)));
+});
 
-      const newTitle = prompt("Enter new title:", movie.title);
-      const newYear = parseInt(prompt("Enter new year:", movie.year));
-      const newGenre = prompt("Enter new genre:", movie.genre);
-      const newPoster = prompt("Enter new poster URL:", movie.poster);
+form.addEventListener("submit", e=>{
+  e.preventDefault();
+  const title=document.getElementById("title").value.trim();
+  const genre=document.getElementById("genre").value.trim();
+  const poster=document.getElementById("poster").value.trim();
+  const year=parseInt(document.getElementById("year").value);
+  movies.push({id:Date.now(), title, genre, poster, year});
+  renderMovies(movies);
+  form.reset();
+});
 
-      if (!newTitle || Number.isNaN(newYear) || !newGenre) return;
+function editMovie(id){
+  const m=movies.find(x=>x.id===id);
+  if(!m) return;
+  m.title=prompt("New title:",m.title)||m.title;
+  m.genre=prompt("New genre:",m.genre)||m.genre;
+  m.year=parseInt(prompt("New year:",m.year))||m.year;
+  renderMovies(movies);
+}
 
-      movie.title = newTitle;
-      movie.year = newYear;
-      movie.genre = newGenre;
-      movie.poster = newPoster || '';
+function deleteMovie(id){
+  movies=movies.filter(m=>m.id!==id);
+  renderMovies(movies);
+}
 
-      renderMovies(allMovies);
-    }
-
-    function deleteMovie(id) {
-      allMovies = allMovies.filter(movie => movie.id !== id);
-      renderMovies(allMovies);
-    }
-
-    toggleBtn.addEventListener("click", () => {
-      document.body.classList.toggle("light");
-      toggleBtn.textContent = document.body.classList.contains("light") ? "Dark" : "Light";
-    });
-  </script>
+themeToggle.addEventListener("click", ()=>{
+  document.body.classList.toggle("light");
+  themeToggle.textContent=document.body.classList.contains("light")?"Dark":"Light";
+});
+</script>
 </body>
 </html>
