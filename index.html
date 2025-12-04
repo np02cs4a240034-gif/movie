@@ -4,61 +4,206 @@
   <meta charset="UTF-8">
   <title>Movie Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
-    :root { --bg:#0f172a; --text:#e2e8f0; --muted:#94a3b8; --primary:#14b8a6; --primary-700:#0f766e; --card:#111827; --border:#1f2937; --danger:#ef4444; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; background:linear-gradient(180deg, #0b1220 0%, #0f172a 100%); color:var(--text); }
+    :root {
+      --bg:#0f172a;
+      --text:#e2e8f0;
+      --muted:#94a3b8;
+      --primary:#14b8a6;
+      --primary-700:#0f766e;
+      --card:#111827;
+      --border:#1f2937;
+      --danger:#ef4444;
+    }
+
+    /* LIGHT THEME */
+    body.light {
+      --bg: #f8fafc;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #0ea5e9;
+      --primary-700: #0369a1;
+      --card: #ffffff;
+      --border: #cbd5e1;
+      --danger: #dc2626;
+
+      background:#f1f5f9;
+      color:var(--text);
+    }
+
+    body.light input {
+      background:#ffffff;
+      color:#0f172a;
+    }
+
+    body.light .movie-item,
+    body.light .card {
+      background:#ffffff;
+      box-shadow:0 4px 8px rgba(0,0,0,.08);
+    }
+
+    body {
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,sans-serif;
+      background:linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+      color:var(--text);
+      transition:all 0.25s ease;
+    }
+
     .container { max-width:880px; margin:0 auto; padding:32px 20px; }
     .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
-    h1 { font-size:28px; margin:0; letter-spacing:.3px; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:0 10px 20px rgba(0,0,0,.25); }
-    .grid { display:grid; grid-template-columns:1fr; gap:12px; }
-    @media (min-width:640px) { .grid { grid-template-columns:1fr 1fr 1fr; } }
-    input { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:#0b1220; color:var(--text); outline:none; }
-    input::placeholder { color:var(--muted); }
-    input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(20,184,166,.25); }
-    .actions { display:flex; gap:10px; }
-    .btn { appearance:none; border:none; border-radius:10px; padding:10px 14px; font-weight:600; cursor:pointer; transition:transform .05s ease, filter .2s ease; }
-    .btn:active { transform:translateY(1px); }
-    .btn-primary { background:var(--primary); color:#062e2a; }
-    .btn-primary:hover { filter:brightness(1.05); }
-    .btn-danger { background:var(--danger); color:#fff; }
-    .btn-danger:hover { filter:brightness(1.05); }
-    .section-title { margin:18px 0 12px; font-size:20px; color:var(--text); }
-    #movie-list { display:grid; grid-template-columns:1fr; gap:12px; }
-    .movie-item { display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
-    .movie-item p { margin:0; color:var(--text); }
-    .movie-item button:nth-of-type(1) { background:var(--primary); color:#062e2a; }
-    .movie-item button:nth-of-type(2) { background:var(--danger); color:#fff; }
-    .toolbar { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    h1 { margin:0; font-size:28px; }
     .pill { padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--muted); }
+
+    .btn { padding:6px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+    .btn-primary { background:var(--primary); color:#062e2a; }
+    .btn-danger { background:var(--danger); color:white; }
+
+    .card { background:var(--card); border:1px solid var(--border); padding:16px; border-radius:12px; }
+
+    input {
+      width:100%; padding:12px; border-radius:10px; background:#0b1220; border:1px solid var(--border);
+      color:var(--text);
+      margin-bottom:8px;
+    }
+
+    #movie-list { display:grid; gap:12px; }
+    .movie-item { display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+    .movie-item img { width:60px; height:90px; object-fit:cover; border-radius:6px; border:1px solid var(--border); }
+    .movie-item-info { display:flex; gap:12px; align-items:center; }
+    .movie-item-info p { margin:0; }
   </style>
 </head>
 <body>
   <main class="container">
     <div class="header">
       <h1>Movie Collection Manager</h1>
-      <span class="pill">Teal Theme</span>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <span class="pill">Teal Theme</span>
+        <button id="light-toggle" class="btn btn-primary">Light</button>
+      </div>
     </div>
+
     <section class="card" style="margin-bottom:16px;">
-      <form id="add-movie-form" class="grid">
-        <h3 class="section-title" style="grid-column:1/-1;">Add New Movie</h3>
+      <form id="add-movie-form">
+        <h3>Add New Movie</h3>
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="genre" placeholder="Genre">
+        <input type="text" id="poster" placeholder="Poster URL">
         <input type="number" id="year" placeholder="Release Year" required>
-        <div class="actions" style="grid-column:1/-1;">
-          <button type="submit" class="btn btn-primary">Add Movie</button>
-        </div>
+        <div id="form-error" class="pill" style="display:none; color:#ef4444; border-color:#ef4444; background:transparent;"></div>
+        <button type="submit" class="btn btn-primary">Add Movie</button>
       </form>
     </section>
+
     <section class="card">
-      <h2 class="section-title">Movie List</h2>
-      <div class="toolbar">
-        <input type="text" id="search-input" placeholder="Search movies by title or genre" style="flex:1;">
-      </div>
+      <h2>Movie List</h2>
+      <input type="text" id="search-input" placeholder="Search movies by title or genre">
       <div id="movie-list"></div>
     </section>
   </main>
-  <script src="script.js"></script>
+
+  <script>
+    const movieListDiv = document.getElementById('movie-list');
+    const searchInput = document.getElementById('search-input');
+    const form = document.getElementById('add-movie-form');
+    const formError = document.getElementById('form-error');
+    const toggleBtn = document.getElementById("light-toggle");
+
+    let allMovies = [];
+
+    function renderMovies(moviesToDisplay) {
+      movieListDiv.innerHTML = '';
+      if (moviesToDisplay.length === 0) {
+        movieListDiv.innerHTML = '<p>No movies found.</p>';
+        return;
+      }
+
+      moviesToDisplay.forEach(movie => {
+        const movieElement = document.createElement('div');
+        movieElement.classList.add('movie-item');
+        movieElement.innerHTML = `
+          <div class="movie-item-info">
+            <img src="${movie.poster || 'https://via.placeholder.com/60x90?text=No+Image'}" alt="${movie.title}">
+            <div>
+              <p><strong>${movie.title}</strong> (${movie.year})</p>
+              <p style="font-size:0.9em; color:var(--muted);">${movie.genre}</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-primary" onclick="editMoviePrompt(${movie.id})">Edit</button>
+            <button class="btn btn-danger" onclick="deleteMovie(${movie.id})">Delete</button>
+          </div>
+        `;
+        movieListDiv.appendChild(movieElement);
+      });
+    }
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const titleVal = document.getElementById('title').value.trim();
+      const genreVal = document.getElementById('genre').value.trim();
+      const posterVal = document.getElementById('poster').value.trim();
+      const yearVal = parseInt(document.getElementById('year').value);
+
+      if (!titleVal || Number.isNaN(yearVal)) {
+        formError.style.display = 'block';
+        formError.textContent = 'Please provide title and a valid year.';
+        return;
+      }
+
+      const newMovie = {
+        id: Date.now(),
+        title: titleVal,
+        genre: genreVal || "Unknown",
+        year: yearVal,
+        poster: posterVal
+      };
+
+      allMovies.push(newMovie);
+      renderMovies(allMovies);
+      form.reset();
+      formError.style.display = 'none';
+    });
+
+    searchInput.addEventListener('input', () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filteredMovies = allMovies.filter(movie =>
+        movie.title.toLowerCase().includes(searchTerm) ||
+        movie.genre.toLowerCase().includes(searchTerm)
+      );
+      renderMovies(filteredMovies);
+    });
+
+    function editMoviePrompt(id) {
+      const movie = allMovies.find(m => m.id === id);
+      if (!movie) return;
+
+      const newTitle = prompt("Enter new title:", movie.title);
+      const newYear = parseInt(prompt("Enter new year:", movie.year));
+      const newGenre = prompt("Enter new genre:", movie.genre);
+      const newPoster = prompt("Enter new poster URL:", movie.poster);
+
+      if (!newTitle || Number.isNaN(newYear) || !newGenre) return;
+
+      movie.title = newTitle;
+      movie.year = newYear;
+      movie.genre = newGenre;
+      movie.poster = newPoster || '';
+
+      renderMovies(allMovies);
+    }
+
+    function deleteMovie(id) {
+      allMovies = allMovies.filter(movie => movie.id !== id);
+      renderMovies(allMovies);
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      toggleBtn.textContent = document.body.classList.contains("light") ? "Dark" : "Light";
+    });
+  </script>
 </body>
 </html>

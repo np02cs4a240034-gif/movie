@@ -1,8 +1,9 @@
-const API_URL = 'http://localhost:3000/movies';
+const API_URL = 'movies.json';   // FIXED — NO MORE /movies
 
 const movieListDiv = document.getElementById('movie-list');
 const searchInput = document.getElementById('search-input');
 const form = document.getElementById('add-movie-form');
+const formError = document.getElementById('form-error');
 
 let allMovies = [];
 
@@ -17,7 +18,7 @@ function renderMovies(moviesToDisplay) {
     movieElement.classList.add('movie-item');
     movieElement.innerHTML = `
       <p><strong>${movie.title}</strong> (${movie.year}) - ${movie.genre}</p>
-      <button class="btn btn-primary" onclick="editMoviePrompt(${movie.id}, '${movie.title}', ${movie.year}, '${movie.genre}')">Edit</button>
+      <button class="btn btn-primary" onclick="editMoviePrompt(${movie.id})">Edit</button>
       <button class="btn btn-danger" onclick="deleteMovie(${movie.id})">Delete</button>
     `;
     movieListDiv.appendChild(movieElement);
@@ -27,86 +28,71 @@ function renderMovies(moviesToDisplay) {
 function fetchMovies() {
   fetch(API_URL)
     .then(response => response.json())
-    .then(movies => {
-      allMovies = movies;
+    .then(data => {
+      allMovies = data.movies;
       renderMovies(allMovies);
     })
-    .catch(error => console.error('Error fetching movies:', error));
+    .catch(error => {
+      formError.style.display = 'block';
+      formError.textContent = 'Failed to load movies: ' + error.message;
+    });
 }
 
 fetchMovies();
 
-searchInput.addEventListener('input', function () {
+searchInput.addEventListener('input', () => {
   const searchTerm = searchInput.value.toLowerCase();
-  const filteredMovies = allMovies.filter(movie => {
-    const titleMatch = movie.title.toLowerCase().includes(searchTerm);
-    const genreMatch = movie.genre.toLowerCase().includes(searchTerm);
-    return titleMatch || genreMatch;
-  });
+  const filteredMovies = allMovies.filter(movie =>
+    movie.title.toLowerCase().includes(searchTerm) ||
+    movie.genre.toLowerCase().includes(searchTerm)
+  );
   renderMovies(filteredMovies);
 });
 
 form.addEventListener('submit', function (event) {
   event.preventDefault();
+
+  const titleVal = document.getElementById('title').value.trim();
+  const genreVal = document.getElementById('genre').value.trim();
+  const yearVal = parseInt(document.getElementById('year').value);
+
+  if (!titleVal || Number.isNaN(yearVal)) {
+    formError.style.display = 'block';
+    formError.textContent = 'Please provide title and a valid year.';
+    return;
+  }
+
   const newMovie = {
-    title: document.getElementById('title').value,
-    genre: document.getElementById('genre').value,
-    year: parseInt(document.getElementById('year').value)
+    id: Date.now(),
+    title: titleVal,
+    genre: genreVal || "Unknown",
+    year: yearVal
   };
-  fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newMovie)
-  })
-    .then(response => {
-      if (!response.ok) throw new Error('Failed to add movie');
-      return response.json();
-    })
-    .then(() => {
-      this.reset();
-      fetchMovies();
-    })
-    .catch(error => console.error('Error adding movie:', error));
+
+  allMovies.push(newMovie);
+  renderMovies(allMovies);
+  this.reset();
+  formError.style.display = 'none';
 });
 
-function editMoviePrompt(id, currentTitle, currentYear, currentGenre) {
-  const newTitle = prompt('Enter new Title:', currentTitle);
-  const newYearStr = prompt('Enter new Year:', currentYear);
-  const newGenre = prompt('Enter new Genre:', currentGenre);
-  if (newTitle && newYearStr && newGenre) {
-    const updatedMovie = {
-      id: id,
-      title: newTitle,
-      year: parseInt(newYearStr),
-      genre: newGenre
-    };
-    updateMovie(id, updatedMovie);
-  }
+function editMoviePrompt(id) {
+  const movie = allMovies.find(m => m.id === id);
+  if (!movie) return;
+
+  const newTitle = prompt("Enter new title:", movie.title);
+  const newYear = parseInt(prompt("Enter new year:", movie.year));
+  const newGenre = prompt("Enter new genre:", movie.genre);
+
+  if (!newTitle || Number.isNaN(newYear) || !newGenre) return;
+
+  movie.title = newTitle;
+  movie.year = newYear;
+  movie.genre = newGenre;
+
+  renderMovies(allMovies);
 }
 
-function updateMovie(movieId, updatedMovieData) {
-  fetch(`${API_URL}/${movieId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updatedMovieData)
-  })
-    .then(response => {
-      if (!response.ok) throw new Error('Failed to update movie');
-      return response.json();
-    })
-    .then(() => {
-      fetchMovies();
-    })
-    .catch(error => console.error('Error updating movie:', error));
-}
-
-function deleteMovie(movieId) {
-  fetch(`${API_URL}/${movieId}`, {
-    method: 'DELETE'
-  })
-    .then(response => {
-      if (!response.ok) throw new Error('Failed to delete movie');
-      fetchMovies();
-    })
-    .catch(error => console.error('Error deleting movie:', error));
+function deleteMovie(id) {
+  allMovies = allMovies.filter(movie => movie.id !== id);
+  renderMovies(allMovies);
 }
